@@ -5,3 +5,4 @@ logs/
 .env
 
 *.duckdb
+dbt_internal_packages/

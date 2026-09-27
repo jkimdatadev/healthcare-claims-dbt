@@ -1,0 +1,24 @@
+models:
+  - name: stg_members
+    description: "One row per member. Standardized demographics only; no eligibility attributes."
+    columns:
+      - name: member_id
+        description: "Natural key for the member."
+        data_tests:
+          - unique
+          - not_null
+      - name: date_of_birth
+        data_tests:
+          - not_null
+      - name: gender_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['F', 'M']
+      - name: state_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['DE', 'NJ', 'NY', 'PA']

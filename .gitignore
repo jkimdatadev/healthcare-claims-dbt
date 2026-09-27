@@ -1,2 +1,6 @@
 dbt-env/
 logs/
+
+# Local only: old data backups and editor settings
+archive/
+.vscode/
