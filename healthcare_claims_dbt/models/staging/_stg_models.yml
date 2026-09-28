@@ -76,4 +76,35 @@ models:
       - name: updated_at
         data_tests:
           - not_null
-             
+  
+  - name: stg_eligibility_segments
+    description: >
+      One row per eligibility_segment_id: a continuous enrollment span for one member in one plan. 
+      A member can have many segments, including repeat segments in the same plan after a gap.
+    columns:
+      - name: eligibility_segment_id
+        data_tests:
+          - unique
+          - not_null
+      - name: member_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_members')
+                field: member_id
+      - name: plan_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_plans')
+                field: plan_id
+      - name: effective_date
+        data_tests:
+          - not_null
+      - name: term_date
+      - name: updated_at
+        data_tests:
+          - not_null
+ 
