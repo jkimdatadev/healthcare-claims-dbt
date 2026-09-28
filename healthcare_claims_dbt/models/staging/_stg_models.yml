@@ -1,3 +1,5 @@
+version: 2
+
 models:
   - name: stg_members
     description: "One row per member. Standardized demographics only; no eligibility attributes."
@@ -22,3 +24,56 @@ models:
           - accepted_values:
               arguments:
                 values: ['DE', 'NJ', 'NY', 'PA']
+  
+  - name: stg_plans
+    description: "One row per plan_id. plan_brand_name is not unique; each state's brand is shared across multiple plans."
+    columns:
+      - name: plan_id
+        data_tests:
+          - unique
+          - not_null
+      - name: plan_brand_name
+        data_tests:
+          - not_null
+      - name: product_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['MCD', 'DSNP', 'MA']
+      - name: program_type_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['MEDICAID', 'MEDICARE']
+      - name: state_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['DE', 'NJ', 'NY', 'PA']
+      - name: medicare_status_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['NONE', 'AB']
+      - name: aid_category_code
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ABD', 'LTC', 'TANF']
+      - name: coverage_type_code
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['FULL', 'LIMITED']
+      - name: effective_date
+        data_tests:
+          - not_null
+      - name: term_date
+      - name: updated_at
+        data_tests:
+          - not_null
+             
