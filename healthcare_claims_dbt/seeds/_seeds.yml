@@ -1,0 +1,11 @@
+version: 2
+
+seeds:
+  - name: raw_members
+    description: "Synthetic member demographic data, one row per member_id."
+  - name: raw_plans
+    description: "Synthetic health plan reference data, one row per plan_id representing a distinct plan configuration."
+  - name: raw_eligibility_segments
+    description: "Synthetic member eligibility data, one row per eligibility_segment_id representing a coverage period."
+  - name: raw_medical_claim_lines
+    description: "Synthetic medical claims data, one row per claim_id and claim_line_number."
