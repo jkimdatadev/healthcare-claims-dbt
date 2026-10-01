@@ -79,8 +79,9 @@ models:
   
   - name: stg_eligibility_segments
     description: >
-      One row per eligibility_segment_id: a continuous enrollment span for one member in one plan. 
-      A member can have many segments, including repeat segments in the same plan after a gap.
+      One row per eligibility_segment_id: a continuous enrollment span for one member in one plan.
+      A member can have many segments over time, including repeat segments in the same plan after a gap,
+      but cannot be enrolled in more than one plan at the same time.
     columns:
       - name: eligibility_segment_id
         data_tests:
@@ -107,4 +108,80 @@ models:
       - name: updated_at
         data_tests:
           - not_null
- 
+
+  - name: stg_medical_claim_lines
+    description: >
+      One row per medical claim line, identified by the combination of claim_id
+      and claim_line_number.
+    columns:
+      - name: claim_id
+        data_tests:
+          - not_null
+      - name: claim_line_number
+        data_tests:
+          - not_null
+      - name: member_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_members')
+                field: member_id
+      - name: claim_type_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['M']
+      - name: claim_status_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['PAID', 'DENIED']
+      - name: billing_provider_npi
+        data_tests:
+          - not_null
+      - name: rendering_provider_npi
+      - name: billing_provider_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['HOSP', 'LAB', 'PHYS', 'SNF']
+      - name: bill_type_code
+      - name: service_from_date
+        data_tests:
+          - not_null
+      - name: service_to_date
+        data_tests:
+          - not_null
+      - name: received_date
+        data_tests:
+          - not_null
+      - name: paid_date
+      - name: place_of_service_code
+      - name: revenue_code
+      - name: procedure_code
+      - name: procedure_modifier
+      - name: units
+      - name: diagnosis_code_1
+        data_tests:
+          - not_null
+      - name: diagnosis_code_2
+      - name: diagnosis_code_3
+      - name: billed_amount
+        data_tests:
+          - not_null
+      - name: allowed_amount
+        data_tests:
+          - not_null
+      - name: paid_amount
+        data_tests:
+          - not_null
+      - name: member_responsibility_amount
+        data_tests:
+          - not_null
+      - name: updated_at
+        data_tests:
+          - not_null
