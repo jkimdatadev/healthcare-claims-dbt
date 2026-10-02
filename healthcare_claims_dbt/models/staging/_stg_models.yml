@@ -165,6 +165,8 @@ models:
       - name: procedure_code
       - name: procedure_modifier
       - name: units
+        data_tests:
+          - not_null
       - name: diagnosis_code_1
         data_tests:
           - not_null
