@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: int_member_plan_month_eligibility
+    description: >
+      One row per member, plan, and calendar month in which the member has at least one eligible day. 
+      Partial-month eligibility is represented by the number of eligible days in the month. 
+      When multiple eligibility segments occur for the same member, plan, and month, they are consolidated into a single row.
+
+    columns:
+      - name: member_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_members')
+                field: member_id
+      - name: plan_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_plans')
+                field: plan_id
+      - name: month
+        description: first day of the calendar month to represent the row's month context
+        data_tests:
+          - not_null
+      - name: eligible_days
+        description: >
+          Number of days in the month the member is eligible for the plan.
+          When multiple eligibility segments contribute to the same member-plan-month, their eligible days are combined.
+        data_tests:
+          - not_null
+      - name: has_multiple_segments
+        description: True when multiple eligibility segments contribute to the member-plan-month; otherwise false
+  
+

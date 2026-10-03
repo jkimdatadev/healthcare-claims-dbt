@@ -1,7 +1,7 @@
 with source as (
     select * from {{ ref('raw_medical_claim_lines') }}
-)
-,renamed as (
+),
+renamed as (
     select
         upper(nullif(trim(claim_id), '')) as claim_id,
         claim_line_number,

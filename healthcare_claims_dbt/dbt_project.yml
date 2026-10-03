@@ -37,3 +37,9 @@ seeds:
         date_of_birth: date
         created_at: timestamp
         updated_at: timestamp
+
+vars:
+  # Eligibility and medical claims datasets extend through this date.
+  # This variable is used to bound open-ended eligibility segments for reproducible analysis.
+  analysis_through_date: '2026-06-30'
+
