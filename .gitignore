@@ -1,5 +1,11 @@
 dbt-env/
 logs/
+target/
+dbt_packages/
+dbt_internal_packages/
+.env
+*.duckdb
+~$*.xlsx
 
 # Local only: old data backups and editor settings
 archive/
