@@ -1,2 +1,2 @@
 *.sql linguist-detectable
-scripts/** linguist-vendored
+healthcare_claims_dbt/scripts/** linguist-detectable=false
