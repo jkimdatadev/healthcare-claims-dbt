@@ -6,7 +6,6 @@ models:
       One row per member, plan, and calendar month in which the member has at least one eligible day. 
       Partial-month eligibility is represented by the number of eligible days in the month. 
       When multiple eligibility segments occur for the same member, plan, and month, they are consolidated into a single row.
-
     columns:
       - name: member_id
         data_tests:
@@ -35,4 +34,40 @@ models:
       - name: has_multiple_segments
         description: True when multiple eligibility segments contribute to the member-plan-month; otherwise false
   
-
+  - name: int_medical_claim_lines_enriched
+    description: >
+      One row per medical claim line. 
+      All fields are preserved from the staging source, with eligibility and plan context added based on service_from_date.
+      Claim lines without matching eligibility are retained and flagged.
+    columns:
+      - name: claim_id 
+        data_tests:
+          - not_null
+      - name: claim_line_number
+        data_tests:
+          - not_null
+      - name: member_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_members')
+                field: member_id
+      - name: service_from_date
+        data_tests:
+          - not_null
+      - name: has_matching_eligibility
+        data_tests:
+          - not_null
+      - name: eligibility_segment_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_eligibility_segments')
+                field: eligibility_segment_id
+      - name: plan_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_plans')
+                field: plan_id
