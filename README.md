@@ -34,15 +34,32 @@ flowchart LR
     sp --> icl
 ```
 
-| Layer | Models | Purpose |
+| Models | Purpose | Medallion equivalent |
 |---|---|---|
-| Seeds | `raw_members`, `raw_plans`, `raw_eligibility_segments`, `raw_medical_claim_lines` | Synthetic source data |
-| Staging | `stg_*` | Rename, type-cast, trim, standardize codes; no business logic |
-| Intermediate | `int_member_plan_month_eligibility` | One row per member, plan, and month with at least one eligible day |
-| | `int_medical_claim_lines_enriched` | One row per claim line, with eligibility and plan context as of the service date |
+| `raw_*` | Source-shaped synthetic data, loaded as seeds | Bronze |
+| `stg_*`, `int_*` | Clean, type, and standardize; `int_*` only where it keeps downstream models simpler | Silver |
+| `fct_*`, `dim_*`, `mart_*` | Analytics-ready facts and dimensions, plus business-facing metrics | Gold |
 
-Planned next: analytics-ready dimensions and facts, and a utilization mart combining claims
-(numerator) with member months (denominator) for PMPM and claims-per-1,000 metrics.
+Layer boundaries vary between organizations; some treat facts and dimensions as silver and
+reserve gold for business-specific marts.
+
+Current models:
+
+| Model | Grain |
+|---|---|
+| `stg_members`, `stg_plans`, `stg_eligibility_segments`, `stg_medical_claim_lines` | Same as their raw sources |
+| `int_member_plan_month_eligibility` | One row per member, plan, and month with at least one eligible day |
+| `int_medical_claim_lines_enriched` | One row per claim line, with eligibility and plan context as of the service date |
+
+Planned next:
+
+| Model | Grain | Purpose |
+|---|---|---|
+| `fct_member_plan_month` | Member, plan, and month | Member-month exposure split by plan; replaces `int_member_plan_month_eligibility` |
+| `fct_member_month` | Member and month | Enrollment and exposure in the form most analysts expect |
+| `fct_medical_claim_lines` | Claim line | Medical claim lines with attributed plan |
+| `mart_pmpm` | Month, state, and product | Paid and allowed PMPM |
+| `mart_utilization` | Month, state, product, and provider type | Claims per 1,000 member months |
 
 ## Key design decisions
 
@@ -127,4 +144,5 @@ healthcare-claims-dbt/
 ## About the data
 
 All data is synthetic and generated for this project. No real member, provider, or claims
-information is included.
+information is included. The raw tables are loaded as dbt seeds; in production, an ingestion
+pipeline would load them instead.
