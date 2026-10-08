@@ -26,7 +26,8 @@ segment_months as (
         cast(month_timestamp as date) as month_start_date,
         effective_date,
         term_date,
-        expansion_end_date
+        expansion_end_date,
+        least(expansion_end_date, last_day(cast(month_timestamp as date))) as segment_month_end_date
     from bounded_segments
     cross join lateral generate_series(
         date_trunc('month', effective_date),
@@ -40,7 +41,7 @@ monthly_eligible_days as (
         datediff(
             'day',
             greatest(effective_date, month_start_date),
-            least(expansion_end_date, last_day(month_start_date))
+            segment_month_end_date
         ) + 1 as month_eligible_days
     from segment_months
 ),
@@ -51,7 +52,8 @@ member_plan_months as (
         month_start_date,
         day(last_day(month_start_date)) as days_in_month,
         sum(month_eligible_days) as eligible_days,
-        count(*) > 1 as has_multiple_segments
+        count(*) > 1 as has_multiple_segments,
+        max(segment_month_end_date) as last_eligible_date
     from monthly_eligible_days
     group by
         member_id,
@@ -68,7 +70,8 @@ final as (
         cast(mpm.eligible_days as double) / mpm.days_in_month as member_month_exposure,
         case when p.product_code = 'DSNP' then true else false end as is_dual_eligible,
         case when p.aid_category_code = 'LTC' then true else false end as receives_ltss,
-        mpm.has_multiple_segments
+        mpm.has_multiple_segments,
+        mpm.last_eligible_date
     from member_plan_months mpm
     left join plans p
         on mpm.plan_id = p.plan_id
