@@ -1,2 +1,3 @@
 *.sql linguist-detectable
 healthcare_claims_dbt/scripts/** linguist-detectable=false
+* text=auto
