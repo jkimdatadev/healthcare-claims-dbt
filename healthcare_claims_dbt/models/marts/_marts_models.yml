@@ -46,6 +46,6 @@ models:
         data_tests:
           - not_null
       - name: last_eligible_date
-        description: "Last day the member was eligible in this plan during the month. Equals the month's last day when coverage runs through month end."
-        data_tests: 
+        description: "Last day the member was eligible in this plan during the month."
+        data_tests:
           - not_null
