@@ -28,7 +28,8 @@ flowchart LR
     rp[raw_plans] --> sp[stg_plans]
     re[raw_eligibility_segments] --> se[stg_eligibility_segments]
     rc[raw_medical_claim_lines] --> sc[stg_medical_claim_lines]
-    se --> ime[int_member_plan_month_eligibility]
+    se --> fmpm[fct_member_plan_month]
+    sp --> fmpm
     sc --> icl[int_medical_claim_lines_enriched]
     se --> icl
     sp --> icl
@@ -48,14 +49,13 @@ Current models:
 | Model | Grain |
 |---|---|
 | `stg_members`, `stg_plans`, `stg_eligibility_segments`, `stg_medical_claim_lines` | Same as their raw sources |
-| `int_member_plan_month_eligibility` | One row per member, plan, and month with at least one eligible day |
 | `int_medical_claim_lines_enriched` | One row per claim line, with eligibility and plan context as of the service date |
+| `fct_member_plan_month` | One row per member, plan, and month with at least one eligible day, with member-month exposure |
 
 Planned next:
 
 | Model | Grain | Purpose |
 |---|---|---|
-| `fct_member_plan_month` | Member, plan, and month | Member-month exposure split by plan; replaces `int_member_plan_month_eligibility` |
 | `fct_member_month` | Member and month | Enrollment and exposure in the form most analysts expect |
 | `fct_medical_claim_lines` | Claim line | Medical claim lines with attributed plan |
 | `mart_pmpm` | Month, state, and product | Paid and allowed PMPM |
@@ -84,9 +84,10 @@ in at a given time, so they belong on time-based facts, not on a member dimensio
 | Test type | Examples |
 |---|---|
 | Generic | `unique`, `not_null`, `accepted_values` on code columns, `relationships` between models |
-| Singular | `stg_plans_date_range`: no plan ends before it starts |
-| | `stg_eligibility_segments_no_overlaps`: no member has two segments covering the same day |
-| | `int_medical_claim_lines_enriched` row count and grain checks: the eligibility join adds or removes no claim lines |
+| Singular | `assert_stg_plans_date_range`: no plan ends before it starts |
+| | `assert_stg_eligibility_segments_no_overlap`: no member has two segments covering the same day |
+| | `assert_int_medical_claim_lines_enriched_*`: the eligibility join adds or removes no claim lines |
+| | `assert_fct_member_plan_month_*`: unique grain and valid eligible days per month |
 
 ## Running the project
 
@@ -139,7 +140,7 @@ healthcare-claims-dbt/
 - **Blank lines** separate independent units (models in YAML, sections in config), not steps
   within one query.
 - **Code columns** (`*_code`) are trimmed and uppercased in staging; name columns keep their case.
-- **Singular tests** are named `<model>_<rule>`.
+- **Singular tests** are named `assert_<model>_<rule>`.
 
 ## About the data
 

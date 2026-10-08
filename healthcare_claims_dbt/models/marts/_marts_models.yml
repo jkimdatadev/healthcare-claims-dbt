@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: fct_member_plan_month
+    description: >
+      One row per member, plan, and month with at least one eligible day.
+      Monthly eligibility exposure by member and plan, used as the denominator for PMPM and utilization metrics.
+    columns:
+      - name: member_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_members')
+                field: member_id
+      - name: plan_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_plans')
+                field: plan_id
+      - name: month_start_date
+        data_tests:
+          - not_null
+      - name: eligible_days
+        data_tests:
+          - not_null
+      - name: days_in_month
+        data_tests:
+          - not_null
+      - name: member_month_exposure
+        description: "eligible_days / days_in_month; fractional member month, not rounded."
+        data_tests:
+          - not_null
+      - name: is_dual_eligible
+        description: "True when the plan's product_code is DSNP; includes partial duals."
+        data_tests:
+          - not_null
+      - name: receives_ltss
+        description: "True when the plan's aid_category_code is LTC."
+        data_tests:
+          - not_null
+      - name: has_multiple_segments
+        description: "True when more than one eligibility segment contributes to the member-plan-month."
+        data_tests:
+          - not_null
