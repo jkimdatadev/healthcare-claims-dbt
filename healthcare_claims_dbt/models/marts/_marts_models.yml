@@ -49,3 +49,59 @@ models:
         description: "Last day the member was eligible in this plan during the month."
         data_tests:
           - not_null
+
+  - name: fct_member_month
+    description: >
+      One row per member per month in which the member had any eligibility.
+      Month-end columns are null when the member was not eligible on the last day of the month or the month is incomplete.
+      For plan or product analysis, use fct_member_plan_month; a member who switches plans mid-month has only one row here.
+    columns:
+      - name: member_id
+        description: "Member identifier; part of the member-month grain."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_members')
+                field: member_id
+      - name: month_start_date
+        description: "First day of the calendar month; part of the member-month grain."
+        data_tests:
+          - not_null
+      - name: eligible_days
+        description: "Total eligible days across all plans during the month, from 1 to days_in_month."
+        data_tests:
+          - not_null
+      - name: days_in_month
+        description: "Number of calendar days in the month."
+        data_tests:
+          - not_null
+      - name: member_month_exposure
+        description: "Fractional eligible month, unrounded; sum of plan-level exposure."
+        data_tests:
+          - not_null
+      - name: plan_count
+        description: "Number of distinct plans with eligibility during the month; at least one."
+        data_tests:
+          - not_null
+      - name: has_multiple_plans
+        description: "True when plan_count > 1; indicates multiple plans within the month, not changes at month boundaries."
+        data_tests:
+          - not_null
+      - name: last_eligible_date
+        description: "Latest eligible date across plans during the month, capped at analysis_through_date."
+        data_tests:
+          - not_null
+      - name: is_eligible_month_end
+        description: "True if eligible on actual calendar month-end; false if not; null if month-end is beyond analysis_through_date."
+      - name: month_end_plan_id
+        description: "Plan active on actual calendar month-end; null if not eligible then or month-end is not observable."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_plans')
+                field: plan_id
+      - name: is_dual_eligible_month_end
+        description: "Dual-eligibility classification of the month-end plan; null when no observable month-end plan exists."
+      - name: receives_ltss_month_end
+        description: "LTSS classification of the month-end plan; null when no observable month-end plan exists."
