@@ -105,3 +105,102 @@ models:
         description: "Dual-eligibility classification of the month-end plan; null when no observable month-end plan exists."
       - name: receives_ltss_month_end
         description: "LTSS classification of the month-end plan; null when no observable month-end plan exists."
+
+  - name: fct_medical_claim_lines
+    description: >
+      One row per claim_id and claim_line_number. Preserves all medical claim lines,
+      including denied claims and those without matching eligibility. Eligibility
+      and plan attribution are based on service_from_date.
+    columns:
+      - name: claim_id
+        description: Unique claim identifier within the composite claim-line grain.
+        data_tests:
+          - not_null
+      - name: claim_line_number
+        description: Line number within a claim.
+        data_tests:
+          - not_null
+      - name: member_id
+        description: Member identifier, nullable when unavailable on the claim.
+      - name: eligibility_segment_id
+        description: Matched eligibility segment identifier, if available.
+      - name: plan_id
+        description: Plan identifier from the matched eligibility segment.
+      - name: has_matching_eligibility
+        description: Indicates whether the claim service start date matches an eligibility segment.
+        data_tests:
+          - not_null
+      - name: state_code
+        description: State associated with the matched plan.
+      - name: product_code
+        description: Product classification of the matched plan.
+      - name: aid_category_code
+        description: Aid category of the matched plan.
+      - name: claim_type_code
+        description: Claim type classification.
+        data_tests:
+          - not_null
+      - name: claim_status_code
+        description: Claim processing status.
+        data_tests:
+          - not_null
+      - name: service_from_date
+        description: First date of service, used for eligibility attribution.
+        data_tests:
+          - not_null
+      - name: service_from_month_start_date
+        description: First calendar day of the month containing service_from_date.
+        data_tests:
+          - not_null
+      - name: service_to_date
+        description: Last date of service.
+        data_tests:
+          - not_null
+      - name: received_date
+        description: Date the claim was received for processing, when available.
+      - name: paid_date
+        description: Date the claim was paid, when applicable.
+      - name: updated_at
+        description: Most recent source-record update timestamp.
+        data_tests:
+          - not_null
+      - name: billed_amount
+        description: Amount billed by the provider, preserving source values and adjustments.
+        data_tests:
+          - not_null
+      - name: allowed_amount
+        description: Allowed amount, preserving source values and adjustments.
+        data_tests:
+          - not_null
+      - name: paid_amount
+        description: Amount paid by the payer, preserving source values and adjustments.
+        data_tests:
+          - not_null
+      - name: member_responsibility_amount
+        description: Member financial responsibility, preserving source values and adjustments.
+        data_tests:
+          - not_null
+      - name: billing_provider_npi
+        description: National Provider Identifier of the billing provider.
+      - name: rendering_provider_npi
+        description: National Provider Identifier of the rendering provider.
+      - name: billing_provider_type
+        description: Billing provider classification.
+      - name: bill_type_code
+        description: Institutional bill type code, when applicable.
+      - name: place_of_service_code
+        description: Place of service classification.
+      - name: revenue_code
+        description: Institutional revenue code, when applicable.
+      - name: procedure_code
+        description: Procedure or service code.
+      - name: procedure_modifier
+        description: Procedure modifier, when applicable.
+      - name: units
+        description: Number of service units, preserving source values and adjustments.
+      - name: diagnosis_code_1
+        description: Primary diagnosis code, when available.
+      - name: diagnosis_code_2
+        description: Secondary diagnosis code, when available.
+      - name: diagnosis_code_3
+        description: Additional diagnosis code, when available.

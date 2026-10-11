@@ -60,3 +60,12 @@ from {{ ref('raw_medical_claim_lines') }}
 select *
 from {{ ref('stg_medical_claim_lines') }}
 limit 100
+
+/* Check claim service dates beyond the analysis cutoff */
+select
+    count(*) as total_claim_lines,
+    count(*) filter (
+        where service_from_date > cast('{{ var("analysis_through_date") }}' as date)
+    ) as post_cutoff_claim_lines,
+    max(service_from_date) as latest_service_from_date
+from {{ ref('stg_medical_claim_lines') }}
