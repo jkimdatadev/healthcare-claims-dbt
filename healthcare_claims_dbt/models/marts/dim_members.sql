@@ -5,7 +5,7 @@ with members as (
         last_name,
         date_of_birth,
         gender_code,
-        state_code,
+        residence_state_code,
         created_at,
         updated_at
     from {{ ref('stg_members') }}
@@ -39,15 +39,15 @@ final as (
         m.last_name,
         m.date_of_birth,
         m.gender_code,
-        m.state_code,
+        m.residence_state_code,
         m.created_at,
         m.updated_at,
-        e.earliest_eligibility_effective_date,
-        e.latest_eligibility_effective_date,
-        e.latest_eligibility_term_date,
-        e.latest_plan_id
+        es.earliest_eligibility_effective_date,
+        es.latest_eligibility_effective_date,
+        es.latest_eligibility_term_date,
+        es.latest_plan_id
     from members m
-    left join eligibility_summary e
-        on m.member_id = e.member_id
+    left join eligibility_summary es
+        on m.member_id = es.member_id
 )
 select * from final

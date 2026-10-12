@@ -8,7 +8,7 @@ renamed as (
         nullif(trim(last_name), '') as last_name,
         cast(date_of_birth as date) as date_of_birth,
         upper(nullif(trim(gender_code), '')) as gender_code,
-        upper(nullif(trim(state_code), '')) as state_code,
+        upper(nullif(trim(state_code), '')) as residence_state_code,
         cast(created_at as timestamp) as created_at,
         cast(updated_at as timestamp) as updated_at
     from source

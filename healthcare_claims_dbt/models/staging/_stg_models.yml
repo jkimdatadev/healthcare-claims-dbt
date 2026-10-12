@@ -18,7 +18,8 @@ models:
           - accepted_values:
               arguments:
                 values: ['F', 'M']
-      - name: state_code
+      - name: residence_state_code
+        description: "Member state of residence; may differ from plan state."
         data_tests:
           - not_null
           - accepted_values:
