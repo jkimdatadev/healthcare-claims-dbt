@@ -5,6 +5,8 @@ renamed as (
     select
         upper(nullif(trim(plan_id), '')) as plan_id,
         nullif(trim(plan_brand_name), '') as plan_brand_name,
+        upper(nullif(trim(plan_brand_code), '')) as plan_brand_code,
+        upper(nullif(trim(plan_benefit_package_code), '')) as plan_benefit_package_code,
         upper(nullif(trim(product_code), '')) as product_code,
         upper(nullif(trim(program_type_code), '')) as program_type_code,
         upper(nullif(trim(state_code), '')) as state_code,

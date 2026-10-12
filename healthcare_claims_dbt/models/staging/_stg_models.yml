@@ -24,9 +24,9 @@ models:
           - accepted_values:
               arguments:
                 values: ['DE', 'NJ', 'NY', 'PA']
-  
+
   - name: stg_plans
-    description: "One row per plan_id. plan_brand_name is not unique; each state's brand is shared across multiple plans."
+    description: "One row per plan_id. Natural key: plan_brand_code + aid_category_code + plan_benefit_package_code, assuming each brand operates in one state. plan_brand_name is shared across multiple plans."
     columns:
       - name: plan_id
         data_tests:
@@ -35,6 +35,17 @@ models:
       - name: plan_brand_name
         data_tests:
           - not_null
+      - name: plan_brand_code
+        description: "Stable identifier for the plan brand; one code per brand name."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['BR01', 'BR02', 'BR03', 'BR04']
+      - name: plan_benefit_package_code
+        description: "CMS contract and plan benefit package (PBP) number, such as H3101-003. Null for Medicaid plans."
+        data_tests:
+          - unique
       - name: product_code
         data_tests:
           - not_null
@@ -76,7 +87,7 @@ models:
       - name: updated_at
         data_tests:
           - not_null
-  
+
   - name: stg_eligibility_segments
     description: >
       One row per eligibility_segment_id: a continuous enrollment span for one member in one plan.
