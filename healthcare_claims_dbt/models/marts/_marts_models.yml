@@ -204,3 +204,43 @@ models:
         description: Secondary diagnosis code, when available.
       - name: diagnosis_code_3
         description: Additional diagnosis code, when available.
+
+  - name: dim_members
+    description: >
+      One row per member, including members without eligibility history.
+      Includes member attributes and a summary of the earliest and latest
+      recorded eligibility. Latest does not necessarily mean currently active.
+    columns:
+      - name: member_id
+        description: Unique member identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Member first name.
+      - name: last_name
+        description: Member last name.
+      - name: date_of_birth
+        description: Member date of birth.
+      - name: gender_code
+        description: Member gender code.
+      - name: state_code
+        description: Member state code.
+      - name: created_at
+        description: Source record creation timestamp.
+      - name: updated_at
+        description: Source record last update timestamp.
+      - name: earliest_eligibility_effective_date
+        description: Earliest eligibility effective date in the available history.
+      - name: latest_eligibility_effective_date
+        description: Effective date of the most recently effective eligibility segment.
+      - name: latest_eligibility_term_date
+        description: >
+          Termination date of the most recently effective eligibility segment.
+          Null if that segment is open-ended or no eligibility history exists.
+      - name: latest_plan_id
+        description: >
+          Plan associated with the most recently effective eligibility segment.
+          Not necessarily the member's currently active plan.
+
+

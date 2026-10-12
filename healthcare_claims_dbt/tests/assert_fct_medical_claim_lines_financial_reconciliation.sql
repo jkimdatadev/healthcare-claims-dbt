@@ -31,7 +31,7 @@ fact_only_rows as (
     select * from fact_amounts
     except
     select * from source_amounts
-),
+),  
 mismatches as (
     select * from source_only_rows
     union all
