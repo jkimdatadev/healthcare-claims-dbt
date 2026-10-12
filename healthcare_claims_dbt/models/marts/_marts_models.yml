@@ -244,4 +244,38 @@ models:
           Plan associated with the most recently effective eligibility segment.
           Not necessarily the member's currently active plan.
 
-
+  - name: dim_plans
+    description: >
+      One row per plan_id, retaining all plans from stg_plans.
+      Includes plan identifiers, classifications, effective dates, and audit information.
+      Plan attributes are not historically versioned in V1.0.
+    columns:
+      - name: plan_id
+        description: Unique plan identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: plan_brand_code
+        description: Identifier for the plan brand.
+      - name: aid_category_code
+        description: Medicaid aid category, when applicable.
+      - name: plan_benefit_package_code
+        description: Identifier distinguishing benefit packages within a plan brand and aid category.
+      - name: plan_brand_name
+        description: Plan brand name.
+      - name: state_code
+        description: State in which the plan operates.
+      - name: product_code
+        description: Plan product code.
+      - name: program_type_code
+        description: Plan program classification.
+      - name: medicare_status_code
+        description: Medicare status classification.
+      - name: coverage_type_code
+        description: Plan coverage classification.
+      - name: effective_date
+        description: Plan effective date.
+      - name: term_date
+        description: Plan termination date, null if open-ended.
+      - name: updated_at
+        description: Source record last update timestamp.
