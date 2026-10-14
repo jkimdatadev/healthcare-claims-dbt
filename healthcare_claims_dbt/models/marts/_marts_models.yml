@@ -247,8 +247,8 @@ models:
   - name: dim_plans
     description: >
       One row per plan_id, retaining all plans from stg_plans.
+      The natural key consists of plan_brand_code, aid_category_code, and plan_benefit_package_code.
       Includes plan identifiers, classifications, effective dates, and audit information.
-      Plan attributes are not historically versioned in V1.0.
     columns:
       - name: plan_id
         description: Unique plan identifier.
@@ -279,3 +279,56 @@ models:
         description: Plan termination date, null if open-ended.
       - name: updated_at
         description: Source record last update timestamp.
+
+  - name: agg_plan_month_cost
+    description: >
+      One row per plan_id and month_start_date.
+      Includes months with enrollment or paid claim activity.
+      Reports paid medical costs by service month and payment month.
+      Uses the plan at the time of service and excludes denied or unmatched claims.
+      PMPM must be recalculated from total paid amounts and member months when aggregating.
+    columns:
+      - name: plan_id
+        description: Plan identifier; part of the grain.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_plans')
+                field: plan_id
+      - name: month_start_date
+        description: First day of the reporting month; part of the grain.
+        data_tests:
+          - not_null
+      - name: plan_brand_code
+        description: Plan brand identifier; plan natural key component.
+      - name: aid_category_code
+        description: Plan aid category; plan natural key component. Null when not applicable (MA and LIMITED DSNP plans).
+      - name: plan_benefit_package_code
+        description: CMS contract and plan benefit package number; plan natural key component. Null for Medicaid plans.
+      - name: plan_brand_name
+        description: Plan brand name.
+      - name: state_code
+        description: Plan operating state; not member residence state.
+      - name: product_code
+        description: Plan product (MCD, DSNP, or MA).
+      - name: service_month_paid_amount
+        description: Paid amount for services in this month. Zero when none.
+      - name: payment_month_paid_amount
+        description: >
+          Paid amount paid in this month for services through analysis_through_date.
+          Can extend beyond the cutoff month. Zero when none.
+      - name: member_month_count
+        description: >
+          Count of member-plan-months with at least one eligible day.
+          Additive as member-plan-months; exceeds distinct member-months across plans when members switch plans mid-month.
+      - name: fractional_member_months
+        description: Sum of member_month_exposure (eligible days / days in month). Use for exposure-based rollups.
+      - name: service_month_pmpm_member_count
+        description: Service-month paid amount / member_month_count. Null when the denominator is 0. Do not sum or average.
+      - name: service_month_pmpm_fractional_member
+        description: Service-month paid amount / fractional_member_months. Null when the denominator is 0. Do not sum or average.
+      - name: payment_month_pmpm_member_count
+        description: Payment-month paid amount / member_month_count. Null when the denominator is 0. Do not sum or average.
+      - name: payment_month_pmpm_fractional_member
+        description: Payment-month paid amount / fractional_member_months. Null when the denominator is 0. Do not sum or average.
