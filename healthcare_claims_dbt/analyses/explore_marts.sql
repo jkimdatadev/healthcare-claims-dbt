@@ -110,3 +110,33 @@ having count(*) > 1
 order by
     plan_id,
     month_start_date;
+
+
+/* ---------- agg_plan_month_provider_type_utilization ---------- */
+
+/* Examine billing provider types in qualifying paid claims */
+select
+    billing_provider_type,
+    count(*) as claim_line_count,
+    count(distinct claim_id) as claim_count
+from {{ ref('fct_medical_claim_lines') }}
+where
+    claim_status_code = 'PAID'
+    and has_matching_eligibility
+    and service_from_date <= cast('{{ var("analysis_through_date") }}' as date)
+group by
+    billing_provider_type
+order by
+    billing_provider_type;
+
+/* Find claims associated with multiple billing provider types */
+select
+    claim_id,
+    count(distinct billing_provider_type) as provider_type_count
+from {{ ref('fct_medical_claim_lines') }}
+where claim_status_code = 'PAID'
+    and has_matching_eligibility
+    and service_from_date <= cast('{{ var("analysis_through_date") }}' as date)
+group by claim_id
+having count(distinct billing_provider_type) > 1
+order by provider_type_count desc, claim_id;
