@@ -197,3 +197,43 @@ select
 from {{ ref('agg_plan_month_provider_type_claim_volume') }}
 where claim_line_count = 0
     and member_month_count > 0;
+
+/* Explore DSNP plan natural key */
+select
+    plan_id,
+    plan_brand_code,
+    aid_category_code,
+    plan_benefit_package_code,
+    product_code,
+    program_type_code
+from main.stg_plans
+where product_code = 'DSNP'
+order by plan_brand_code, aid_category_code, plan_benefit_package_code;
+
+/* Check DSNP aid category values */
+select
+    plan_id,
+    aid_category_code,
+    case
+        when aid_category_code is null then 'NULL'
+        when aid_category_code = '-' then 'HYPHEN'
+        when trim(aid_category_code) = '' then 'BLANK'
+        else 'POPULATED'
+    end as aid_category_status
+from main.stg_plans
+where product_code = 'DSNP'
+  and (aid_category_code is null or aid_category_code = '-')
+order by plan_id;
+
+/* Verify fractional member-month exposure */
+select
+    member_id,
+    plan_id,
+    month_start_date,
+    eligible_days,
+    days_in_month,
+    round(member_month_exposure, 4) as member_month_exposure
+from main.fct_member_plan_month
+where eligible_days < days_in_month
+order by month_start_date, member_id
+limit 15;
