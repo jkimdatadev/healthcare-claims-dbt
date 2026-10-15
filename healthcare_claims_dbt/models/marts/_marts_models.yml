@@ -332,3 +332,62 @@ models:
         description: Payment-month paid amount / member_month_count. Null when the denominator is 0. Do not sum or average.
       - name: payment_month_pmpm_fractional_member
         description: Payment-month paid amount / fractional_member_months. Null when the denominator is 0. Do not sum or average.
+
+  - name: agg_plan_month_provider_type_claim_volume
+    description: >
+      One row per plan, service month, and billing provider type.
+      Includes all four provider types for every enrolled plan-month, with zero counts when there are no claims.
+      Counts paid claim lines and distinct claims for services through the analysis cutoff date.
+      Assigns claims to the plan covering the service date and excludes claims without matching enrollment.
+      Enrollment measures are repeated for each provider type; do not sum them across provider types.
+      Rates cannot be summed or averaged; recalculate them using summed claim counts and enrollment counted once per plan-month.
+    columns:
+    - name: plan_id
+      description: Plan identifier; part of the grain.
+      data_tests:
+        - not_null
+        - relationships:
+            arguments:
+              to: ref('dim_plans')
+              field: plan_id
+    - name: month_start_date
+      description: First day of the service month; part of the grain.
+      data_tests:
+        - not_null
+    - name: billing_provider_type
+      description: Billing provider type (HOSP, LAB, PHYS, or SNF); part of the grain.
+      data_tests:
+        - not_null
+        - accepted_values:
+            arguments:
+              values: ['HOSP', 'LAB', 'PHYS', 'SNF']
+    - name: plan_brand_code
+      description: Plan brand identifier; plan natural key component.
+    - name: aid_category_code
+      description: Plan aid category; plan natural key component. Null when not applicable (MA and LIMITED DSNP plans).
+    - name: plan_benefit_package_code
+      description: CMS contract and plan benefit package number; plan natural key component. Null for Medicaid plans.
+    - name: plan_brand_name
+      description: Plan brand name.
+    - name: state_code
+      description: Plan operating state; not member residence state.
+    - name: product_code
+      description: Plan product (MCD, DSNP, or MA).
+    - name: claim_line_count
+      description: Number of paid claim lines. Zero when none. Additive across all dimensions.
+    - name: claim_count
+      description: >
+        Number of distinct paid claims. Zero when none.
+        Additive across all dimensions in current data, because no claim spans provider types, plans, or service months.
+    - name: member_month_count
+      description: >
+        Count of member-plan-months with at least one eligible day for the plan and month.
+        Repeated on each provider-type row; do not sum across provider types.
+    - name: fractional_member_months
+      description: >
+        Sum of member_month_exposure for the plan and month.
+        Repeated on each provider-type row; do not sum across provider types.
+    - name: claim_lines_per_1000_member_months
+      description: claim_line_count × 1,000 / member_month_count. Null when the denominator is 0. Do not sum or average.
+    - name: claims_per_1000_member_months
+      description: claim_count × 1,000 / member_month_count. Null when the denominator is 0. Do not sum or average.

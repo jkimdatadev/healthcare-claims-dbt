@@ -112,7 +112,7 @@ order by
     month_start_date;
 
 
-/* ---------- agg_plan_month_provider_type_utilization ---------- */
+/* ---------- agg_plan_month_provider_type_claim_volume ---------- */
 
 /* Examine billing provider types in qualifying paid claims */
 select
@@ -140,3 +140,60 @@ where claim_status_code = 'PAID'
 group by claim_id
 having count(distinct billing_provider_type) > 1
 order by provider_type_count desc, claim_id;
+
+/* Check whether any qualifying claim has lines associated with multiple plans or service months */
+select count(*) as claims_spanning_plans_or_months
+from (
+    select claim_id
+    from {{ ref('fct_medical_claim_lines') }}
+    where claim_status_code = 'PAID'
+        and has_matching_eligibility
+        and service_from_date <= cast('{{ var("analysis_through_date") }}' as date)
+    group by claim_id
+    having count(distinct plan_id) > 1
+        or count(distinct service_from_month_start_date) > 1
+);
+
+/* Check row count against enrolled plan-months × 4 provider types */
+select
+    (select count(*) from {{ ref('agg_plan_month_provider_type_claim_volume') }}) as agg_rows,
+    (select count(*) * 4
+     from (
+         select distinct plan_id, month_start_date
+         from {{ ref('fct_member_plan_month') }}
+     )) as expected_rows;
+
+/* Reconcile claim lines against qualifying paid claims */
+with source_claims as (
+    select count(*) as expected_claim_lines
+    from {{ ref('fct_medical_claim_lines') }}
+    where claim_status_code = 'PAID'
+        and has_matching_eligibility
+        and service_from_date <= cast('{{ var("analysis_through_date") }}' as date)
+),
+agg_claims as (
+    select
+        sum(claim_line_count) as actual_claim_lines,
+        sum(case when member_month_count = 0 then 1 else 0 end) as claim_only_rows
+    from {{ ref('agg_plan_month_provider_type_claim_volume') }}
+)
+select
+    ac.actual_claim_lines,
+    sc.expected_claim_lines,
+    ac.claim_only_rows
+from agg_claims ac
+cross join source_claims sc;
+
+/* Verify zero-claim enrolled rows have both rates equal to zero */
+select
+    count(*) as zero_claim_enrolled_rows,
+    sum(
+        case
+            when claim_lines_per_1000_member_months = 0
+                and claims_per_1000_member_months = 0
+            then 1 else 0
+        end
+    ) as rows_with_zero_rates
+from {{ ref('agg_plan_month_provider_type_claim_volume') }}
+where claim_line_count = 0
+    and member_month_count > 0;
